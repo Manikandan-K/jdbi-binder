@@ -7,8 +7,8 @@ import org.skife.jdbi.v2.sqlobject.BinderFactory;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
-import static com.github.rkmk.binder.FieldHelper.getFields;
 import static com.github.rkmk.binder.FieldHelper.get;
+import static com.github.rkmk.binder.FieldHelper.getFields;
 
 
 public class BindObjectFactory implements BinderFactory {
@@ -24,7 +24,7 @@ public class BindObjectFactory implements BinderFactory {
             private void bindObject(SQLStatement<?> q, String parentNameSpace, String currentNameSpace, Object arg) {
                 String prefix = parentNameSpace + (currentNameSpace.equals("__bind_object__") ? "" : currentNameSpace + ".");
 
-                for (Field field : getFields(arg.getClass())) {
+                for (Field field : getFields(arg)) {
                     Object fieldValue = get(field, arg);
                     if (field.isAnnotationPresent(BindObject.class)) {
                         bindObject(q, prefix, field.getAnnotation(BindObject.class).value(), fieldValue);
