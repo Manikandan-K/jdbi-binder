@@ -5,10 +5,10 @@ import org.skife.jdbi.v2.sqlobject.Binder;
 import org.skife.jdbi.v2.sqlobject.BinderFactory;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
+import java.util.Map;
 
-import static com.github.rkmk.binder.FieldHelper.get;
-import static com.github.rkmk.binder.FieldHelper.getFields;
+import static com.github.rkmk.binder.FieldWrapperFactory.getFieldsFor;
+import static java.util.Objects.isNull;
 
 
 public class BindObjectFactory implements BinderFactory {
@@ -18,19 +18,12 @@ public class BindObjectFactory implements BinderFactory {
         return new Binder<BindObject, Object>() {
             @Override
             public void bind(SQLStatement<?> q, BindObject bind, Object arg) {
-                bindObject(q, "", bind.value(), arg);
-            }
-
-            private void bindObject(SQLStatement<?> q, String parentNameSpace, String currentNameSpace, Object arg) {
-                String prefix = parentNameSpace + (currentNameSpace.equals("__bind_object__") ? "" : currentNameSpace + ".");
-
-                for (Field field : getFields(arg)) {
-                    Object fieldValue = get(field, arg);
-                    if (field.isAnnotationPresent(BindObject.class)) {
-                        bindObject(q, prefix, field.getAnnotation(BindObject.class).value(), fieldValue);
-                    } else {
-                        q.dynamicBind(field.getType(), prefix + field.getName(), fieldValue);
-                    }
+                if(isNull(arg))
+                    throw new RuntimeException("Object value is null");
+                for (Map.Entry<String, FieldWrapper> fieldWrapperEntry : getFieldsFor(arg.getClass()).entrySet()) {
+                    String nameSpace = fieldWrapperEntry.getKey();
+                    FieldWrapper fieldWrapper = fieldWrapperEntry.getValue();
+                    q.dynamicBind(fieldWrapper.getType(), nameSpace, fieldWrapper.getValue(arg));
                 }
             }
 

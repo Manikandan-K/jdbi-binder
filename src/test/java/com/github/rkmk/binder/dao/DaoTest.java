@@ -13,11 +13,10 @@ import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 import java.util.List;
 import java.util.Map;
 
-import static java.math.BigDecimal.ONE;
-import static java.math.BigDecimal.TEN;
-import static java.math.BigDecimal.valueOf;
+import static java.math.BigDecimal.*;
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 public class DaoTest extends BaseTest {
@@ -68,6 +67,20 @@ public class DaoTest extends BaseTest {
         assertMovie(actual, jeans);
         assertThat(actual.get("director_id"), is(shankar.getDirectorId()));
         assertThat(actual.get("director_name"), is(shankar.getDirectorName()));
+    }
+
+    @Test
+    public void shouldBindEvenIfTheNestedObjectIsNull() {
+        Movie jeans = Movie.builder().movieId(1).movieName("Jeans").ratings(TEN).director(null).build();
+
+        dao.insertMovieWithDirector(jeans);
+
+        List<Map<String, Object>> movies = select("movie");
+        assertThat(movies.size(), is(1));
+        Map<String, Object> actual = movies.get(0);
+        assertMovie(actual, jeans);
+        assertNull(actual.get("director_id"));
+        assertNull(actual.get("director_name"));
     }
 
     @Test
