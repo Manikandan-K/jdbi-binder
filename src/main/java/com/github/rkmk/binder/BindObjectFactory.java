@@ -18,7 +18,7 @@ public class BindObjectFactory implements BinderFactory {
         return new Binder<BindObject, Object>() {
             @Override
             public void bind(SQLStatement<?> q, BindObject bind, Object arg) {
-                if(isNull(arg))
+                if (isNull(arg))
                     throw new RuntimeException("Object value is null");
                 for (Map.Entry<String, PropertyWrapper> propertyWrapperEntry : getFieldsFor(arg.getClass()).entrySet()) {
                     String nameSpace = propertyWrapperEntry.getKey();

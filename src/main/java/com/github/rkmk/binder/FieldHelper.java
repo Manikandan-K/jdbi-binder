@@ -1,12 +1,16 @@
 package com.github.rkmk.binder;
 
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
-import static java.util.Arrays.asList;
 import static java.util.Objects.isNull;
-import static java.util.stream.Collectors.toList;
+import static java.util.Objects.nonNull;
 
 public class FieldHelper {
 
@@ -22,14 +26,45 @@ public class FieldHelper {
     }
 
 
-    public static List<IProperty> getProperties(Class<?> type) {
-        List<IProperty> result = new ArrayList<>();
+    public static Collection<IProperty> getProperties(Class<?> type) {
+        Map<String, IProperty> properties = new HashMap<>();
+
+        populateFieldProperties(type, properties);
+        populateMethodProperties(type, properties);
+
+        return properties.values();
+    }
+
+    private static void populateMethodProperties(Class<?> type, Map<String, IProperty> properties) {
+        PropertyDescriptor[] props = getPropertyDescriptors(type);
+        for (PropertyDescriptor prop : props) {
+            Method readMethod = prop.getReadMethod();
+            if (nonNull(readMethod) && shouldUseGetter(readMethod)) {
+                properties.put(prop.getName(), new MethodProperty(readMethod, prop.getName()));
+            }
+        }
+    }
+
+    private static void populateFieldProperties(Class<?> type, Map<String, IProperty> properties) {
         Class<?> clazz = type;
         while (clazz.getSuperclass() != null) {
-            List<IProperty> properties = asList(clazz.getDeclaredFields()).stream().map(FieldProperty::new).collect(toList());
-            result.addAll(properties);
+            for (Field field : clazz.getDeclaredFields()) {
+                properties.put(field.getName(), new FieldProperty(field));
+            }
             clazz = clazz.getSuperclass();
         }
-        return result;
+    }
+
+    private static PropertyDescriptor[] getPropertyDescriptors(Class<?> type) {
+        try {
+            return Introspector.getBeanInfo(type).getPropertyDescriptors();
+        } catch (IntrospectionException e) {
+            String message = String.format("unable to access bean properties for %s", type);
+            throw new IllegalStateException(message, e);
+        }
+    }
+
+    private static boolean shouldUseGetter(Method readMethod) {
+        return (readMethod.isAnnotationPresent(Property.class) || readMethod.isAnnotationPresent(BindObject.class));
     }
 }

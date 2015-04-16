@@ -5,7 +5,7 @@ import org.skife.jdbi.v2.sqlobject.BindingAnnotation;
 import java.lang.annotation.*;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.PARAMETER, ElementType.FIELD})
+@Target({ElementType.PARAMETER, ElementType.FIELD, ElementType.METHOD})
 @BindingAnnotation(BindObjectFactory.class)
 @Documented
 public @interface BindObject {

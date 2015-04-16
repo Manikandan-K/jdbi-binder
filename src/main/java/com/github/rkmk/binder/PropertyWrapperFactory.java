@@ -11,7 +11,7 @@ public class PropertyWrapperFactory {
 
     private static Map<Class<?>, HashMap<String, PropertyWrapper>> cachedFields = new HashMap<>();
 
-    public static HashMap<String, PropertyWrapper> getFieldsFor(Class<?> clazz) {
+    public static HashMap<String, PropertyWrapper> getFieldsFor(Class<?> clazz)  {
         if(!cachedFields.containsKey(clazz)) {
             HashMap<String, PropertyWrapper> propertyWrappers = new HashMap<>();
             processFields(clazz, "", new ArrayList<>(), propertyWrappers);
@@ -27,7 +27,7 @@ public class PropertyWrapperFactory {
             if (property.isAnnotationPresent(BindObject.class)) {
                    processFields(property.getType(), nameSpace(nameSpace, property), properties,  propertyWrappers);
             } else {
-                propertyWrappers.put(fieldName(nameSpace, property), new PropertyWrapper(properties, property));
+                propertyWrappers.put(propertyName(nameSpace, property), new PropertyWrapper(properties, property));
             }
         }
     }
@@ -38,13 +38,12 @@ public class PropertyWrapperFactory {
         return properties;
     }
 
-    private static String fieldName(String nameSpace, IProperty property) {
+    private static String propertyName(String nameSpace, IProperty property) {
         return nameSpace + property.getName();
     }
 
     private static String nameSpace(String parentObjectNameSpace, IProperty property) {
         return parentObjectNameSpace + property.getNameSpace()  ;
     }
-
 
 }
