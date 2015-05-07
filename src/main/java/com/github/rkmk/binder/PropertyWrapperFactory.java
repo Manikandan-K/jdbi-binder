@@ -9,15 +9,15 @@ import static com.github.rkmk.binder.FieldHelper.getProperties;
 
 public class PropertyWrapperFactory {
 
-    private static Map<Class<?>, HashMap<String, PropertyWrapper>> cachedFields = new HashMap<>();
+    private static Map<Class<?>, HashMap<String, PropertyWrapper>> cachedProperties = new HashMap<>();
 
-    public static HashMap<String, PropertyWrapper> getFieldsFor(Class<?> clazz)  {
-        if(!cachedFields.containsKey(clazz)) {
+    public static HashMap<String, PropertyWrapper> getPropertiesFor(Class<?> clazz)  {
+        if(!cachedProperties.containsKey(clazz)) {
             HashMap<String, PropertyWrapper> propertyWrappers = new HashMap<>();
             processFields(clazz, "", new ArrayList<>(), propertyWrappers);
-            cachedFields.put(clazz, propertyWrappers);
+            cachedProperties.put(clazz, propertyWrappers);
         }
-        return cachedFields.get(clazz);
+        return cachedProperties.get(clazz);
     }
 
 
