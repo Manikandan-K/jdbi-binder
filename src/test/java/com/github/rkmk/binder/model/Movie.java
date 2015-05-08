@@ -15,6 +15,7 @@ public class Movie {
     private Integer movieId;
     private String movieName;
 
+    @BindObject("d")
     private Director director;
 
     private BigDecimal ratings;
@@ -23,12 +24,10 @@ public class Movie {
         return movieId;
     }
 
-    @Property
     public String getMovieName() {
         return movieName;
     }
 
-    @BindObject("d")
     public Director getDirector() {
         return director;
     }

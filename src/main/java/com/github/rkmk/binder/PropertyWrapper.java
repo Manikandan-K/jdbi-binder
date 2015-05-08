@@ -2,6 +2,8 @@ package com.github.rkmk.binder;
 
 import java.util.List;
 
+import static java.util.Objects.nonNull;
+
 public class PropertyWrapper {
 
     private List<IProperty> properties;
@@ -19,7 +21,7 @@ public class PropertyWrapper {
     public Object getValue(Object object) {
         Object value = object;
         for (IProperty property : properties) {
-            value = property.getValue(value);
+            value = nonNull(value) ? property.getValue(value) : null;
         }
         return value;
     }
